@@ -1,0 +1,17 @@
+This module contains some helper scripts that assist with
+PE deployments.
+
+installer.sh can be used as a template of how to automatically install
+PE and some answers files from S3.
+
+It also copies the agent answers file and install tar-ball into the /var/www
+directory (and assumes that will make it accessible for the agents to download)
+
+This installer script is meant to be combined with the following (which should be
+appended to the end of the preseed file)
+
+d-i preseed/late_command string echo "server $http_server" >> /target/etc/ntp.conf; \
+                                wget "http://${http_server}/agent_2_5_2.answers" -O /target/root/agent_2_5_2.answers; \
+				wget "http://${http_server}/puppet-enterprise-2.5.2rc0-32-g980a064-ubuntu-12.04-amd64.tar.gz" -O /target/root/puppet-enterprise-2.5.2rc0-32-g980a064-ubuntu-12.04-amd64.tar.gz; \
+				in-target bash -c 'tar -xzvf /root/puppet-enterprise-2.5.2rc0-32-g980a064-ubuntu-12.04-amd64.tar.gz -C /root/'; \
+          			in-target bash -c '/root/puppet-enterprise-2.5.2rc0-32-g980a064-ubuntu-12.04-amd64/puppet-enterprise-installer -a /root/agent_2_5_2.answers >& /root/puppet_install.log';
